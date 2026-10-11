@@ -1,7 +1,13 @@
 # alert-tsa: air raid alerts in Kyiv City
 
-A small time series analysis of air raid alerts in Ukraine, ending with a
-next-day forecast for Kyiv City. The report is `notebooks/analysis.ipynb`.
+A small time series analysis of air raid alerts in Ukraine, with three
+forecasts for Kyiv City. The report is `notebooks/analysis.ipynb`.
+
+| Forecast | Target | Result |
+|---|---|---|
+| v1 | Tomorrow's hours under alert | No skill: no method beats a constant |
+| v2 | Alert within 15 to 180 minutes, re-issued every 15 minutes at night | Small real gain from neighbouring oblasts up to 60 minutes |
+| v3 | Any alert in each 6-hour block of tomorrow | No skill against the all-history rate |
 
 ## Question
 
@@ -29,23 +35,30 @@ project owner, not re-checked here).
 pip install -r requirements.txt
 python scripts/fetch_data.py        # downloads the file at the pinned commit
 python -m src.load                  # prints the validation report
-python -m pytest                    # 62 tests, about a minute
-jupyter nbconvert --to notebook --execute --inplace notebooks/analysis.ipynb
+python -m pytest                    # 169 tests, about three minutes
+python -m nbconvert --to notebook --execute --inplace notebooks/analysis.ipynb
 ```
 
-The notebook takes about five minutes, almost all of it in the forecast cell.
+The notebook takes about five minutes, almost all of it in the v1 forecast
+cell. Its v2 and v3 sections read the saved files in `results/`. Those were
+produced by `scripts/run_nowcast.py` and `scripts/run_blocks.py` (`select`,
+then `test`); the `test` step refuses to run again while its output exists.
 Tests that need the real file are skipped if it has not been fetched.
 
-Versions used: Python 3.13, pandas 3.0.6, statsmodels 0.15.0, matplotlib
-3.11.2, numpy 2.5.4, scipy 1.18.1, pytest 9.1.1.
+Versions used: Python 3.13, pandas 3.0.6, statsmodels 0.15.0, scikit-learn
+1.9.1, matplotlib 3.11.2, numpy 2.5.4, scipy 1.18.1, pytest 9.1.1.
 
 ## Layout
 
 ```
 src/load.py        load, validate, dedupe, clean
 src/series.py      intervals -> daily and hourly series
-src/forecast.py    baselines, models, rolling evaluation
+src/forecast.py    v1: baselines, models, rolling evaluation
+src/nowcast.py     v2: short-lead forecast and lead-lag analysis
+src/blocks.py      v3: day-ahead 6-hour block probabilities
 scripts/fetch_data.py
+scripts/run_nowcast.py, scripts/run_blocks.py    selection, then one test run
+results/           selections and test forecasts for v2 and v3
 notebooks/analysis.ipynb
 tests/
 ```
@@ -443,7 +456,7 @@ Nothing is fitted; every method is a rate over past days, per block.
    between them. The oblast definition gets looser after the switch, so the
    two periods are not directly comparable and the Kharkivska rise cannot be
    read as a change in threat.
-7. **Forecast: weak.** No method shows day-to-day skill.
+7. **Forecast v1: weak.** No method shows day-to-day skill.
 
    | Method | MAE | RMSE |
    |---|---|---|
@@ -460,6 +473,49 @@ Nothing is fitted; every method is a rate over past days, per block.
    comes from predicting a low, almost constant value (their forecasts vary by
    about 0.15 h against 2.8 h for the actuals), not from anticipating heavy
    days.
+
+8. **Lead-lag with surrounding oblasts** (2025-11-05 to 2026-05-31,
+   hour-of-day cycle removed). Every oblast's correlation with Kyiv City
+   peaks at lag zero: alerts mostly begin together. The strongest are Kyivska
+   (0.51), Vinnytska (0.51), Cherkaska (0.46) and Zhytomyrska (0.44); Sumska
+   (0.12) and Chernihivska (0.19) are the weakest. There is a slight
+   asymmetry toward the neighbours leading (Kyivska: 0.33 when it leads by 60
+   minutes, 0.27 when Kyiv City does).
+9. **Forecast v2: a small real signal at short leads.** Selected model:
+   Kyivska and the six surrounding oblasts, trained on all post-switch data.
+   Test period, issue times when Kyiv City is not under alert:
+
+   | Lead | Share with an alert start | Skill vs (a) | Skill vs (b) | Skill vs (c) | 95% interval vs (c) |
+   |---|---|---|---|---|---|
+   | 15 min | 2.8% | +0.19 | +0.035 | +0.031 | +0.014 to +0.048 |
+   | 30 min | 5.5% | +0.11 | +0.044 | +0.038 | +0.015 to +0.061 |
+   | 60 min | 10.3% | +0.06 | +0.040 | +0.031 | +0.003 to +0.060 |
+   | 120 min | 18.7% | +0.02 | +0.029 | +0.017 | -0.019 to +0.053 |
+   | 180 min | 25.6% | +0.01 | +0.025 | +0.011 | -0.030 to +0.053 |
+
+   - Against the hardest baseline the neighbours improve the Brier score by 3
+     to 4% up to 60 minutes. At 120 and 180 minutes the gain is not
+     distinguishable from zero.
+   - The long-lead skill seen on validation (+0.068 against (c) at 180
+     minutes) did not carry over to the test period.
+   - Kyiv City's own recent history adds almost nothing: (c) beats (b) by 0.4
+     to 1.5%, with intervals that include zero.
+   - Most of the skill against (a) comes from setting aside issue times that
+     are already under alert, not from forecasting.
+   - A 3% Brier improvement on an event with a 3 to 10% base rate is too
+     small to be a usable warning.
+10. **Forecast v3: no skill.** The selected trailing 21-day rate scores a
+    Brier of 0.2337 against 0.2333 for the all-history rate (skill -0.002,
+    95% interval -0.05 to +0.05). The all-history rate was already the best
+    of the ten methods on validation. All scores are close to the 0.25 of
+    always saying 50%. The last-year variants look best on the test period
+    (up to +0.014) but were the worst on validation and were not selected;
+    that difference is noise and is not claimed as a result.
+
+Taken together: for Kyiv City the history of alerts says very little about
+tomorrow, whether the target is hours (v1) or occurrence (v3). The only usable
+information found is what is happening around the city right now (v2), and it
+reaches about an hour ahead.
 
 ## Limitations
 
@@ -484,3 +540,15 @@ Nothing is fitted; every method is a rate over past days, per block.
   No forecast setting was taken from them.
 - **Regional comparison.** The oblast series mixes two recording regimes and,
   for Kharkivska, depends on excluding two standing alerts.
+- **v2 and v3 share the v1 test period.** Settings were fixed and committed
+  before each test run, but the 90 days had already been scored in v1.
+- **v2 assumes real-time publication.** An alert's start is treated as known
+  at its start time. If the feed records starts late or backfills them, the
+  measured skill is too high.
+- **v2 has no threat type.** The file does not say why an alert was declared,
+  which is probably the most useful missing input.
+- **v2 uses post-switch data only,** about 200 nights before the test period,
+  and the test period was busier than the validation period (Kyiv City under
+  alert at 9.3% of issue times against 6.1%).
+- **v2 exploratory look.** An earlier logistic model without the own-history
+  inputs was scored on the validation period before the final design.
