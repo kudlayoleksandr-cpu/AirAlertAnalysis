@@ -1,0 +1,7 @@
+pandas
+statsmodels
+matplotlib
+pytest
+tzdata
+# only needed to open / re-execute notebooks/analysis.ipynb
+jupyter
