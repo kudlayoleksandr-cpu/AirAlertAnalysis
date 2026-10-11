@@ -35,7 +35,7 @@ project owner, not re-checked here).
 pip install -r requirements.txt
 python scripts/fetch_data.py        # downloads the file at the pinned commit
 python -m src.load                  # prints the validation report
-python -m pytest                    # 169 tests, about three minutes
+python -m pytest                    # 135 tests, one to three minutes
 python -m nbconvert --to notebook --execute --inplace notebooks/analysis.ipynb
 ```
 
