@@ -1,0 +1,71 @@
+{
+  "outcomes_known_until": "midnight starting 2026-05-31 (Europe/Kyiv)",
+  "validation_days": 90,
+  "chosen": {
+    "window": 21,
+    "last_year": false
+  },
+  "chosen_label": "trailing 21d",
+  "candidates": [
+    {
+      "method": "all history",
+      "window": null,
+      "last_year": false,
+      "val_brier": 0.2130990143
+    },
+    {
+      "method": "trailing 90d",
+      "window": 90.0,
+      "last_year": false,
+      "val_brier": 0.2143972745
+    },
+    {
+      "method": "trailing 7d",
+      "window": 7.0,
+      "last_year": false,
+      "val_brier": 0.2243149986
+    },
+    {
+      "method": "trailing 14d",
+      "window": 14.0,
+      "last_year": false,
+      "val_brier": 0.2167766091
+    },
+    {
+      "method": "trailing 21d",
+      "window": 21.0,
+      "last_year": false,
+      "val_brier": 0.216546426
+    },
+    {
+      "method": "trailing 30d",
+      "window": 30.0,
+      "last_year": false,
+      "val_brier": 0.2176960806
+    },
+    {
+      "method": "trailing 7d + last year",
+      "window": 7.0,
+      "last_year": true,
+      "val_brier": 0.2247368067
+    },
+    {
+      "method": "trailing 14d + last year",
+      "window": 14.0,
+      "last_year": true,
+      "val_brier": 0.2209154565
+    },
+    {
+      "method": "trailing 21d + last year",
+      "window": 21.0,
+      "last_year": true,
+      "val_brier": 0.2211784262
+    },
+    {
+      "method": "trailing 30d + last year",
+      "window": 30.0,
+      "last_year": true,
+      "val_brier": 0.222212315
+    }
+  ]
+}
