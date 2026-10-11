@@ -42,18 +42,22 @@ def merge_intervals(started_at, finished_at) -> pd.DataFrame:
     })
 
 
+def covered_hours_before(merged: pd.DataFrame, instants) -> np.ndarray:
+    """Total hours of ``merged`` (disjoint, sorted) lying before each instant."""
+    start, finish, at = _ns(merged["started_at"]), _ns(merged["finished_at"]), _ns(instants)
+    if len(start) == 0:
+        return np.zeros(len(at))
+    full_before = np.r_[0, np.cumsum(finish - start)]  # alert time in the first k intervals
+    k = np.searchsorted(start, at, side="right")  # intervals starting at or before the instant
+    last = np.maximum(k - 1, 0)
+    # the k-th interval may still be running at the instant: remove the part after it
+    overshoot = np.where(k > 0, np.maximum(finish[last] - at, 0), 0)
+    return (full_before[k] - overshoot) / _NS_PER_HOUR
+
+
 def _hours_between_edges(merged: pd.DataFrame, edges: pd.DatetimeIndex) -> np.ndarray:
     """Hours of ``merged`` (disjoint, sorted) falling between consecutive edges."""
-    start, finish, edge = _ns(merged["started_at"]), _ns(merged["finished_at"]), _ns(edges)
-    if len(start) == 0:
-        return np.zeros(len(edge) - 1)
-    full_before = np.r_[0, np.cumsum(finish - start)]  # alert time in the first k intervals
-    k = np.searchsorted(start, edge, side="right")  # intervals starting at or before the edge
-    last = np.maximum(k - 1, 0)
-    # the k-th interval may still be running at the edge: remove the part after it
-    overshoot = np.where(k > 0, np.maximum(finish[last] - edge, 0), 0)
-    covered = full_before[k] - overshoot
-    return np.diff(covered) / _NS_PER_HOUR
+    return np.diff(covered_hours_before(merged, edges))
 
 
 def daily_hours(started_at, finished_at, first_day, last_day, tz=KYIV_TZ) -> pd.Series:

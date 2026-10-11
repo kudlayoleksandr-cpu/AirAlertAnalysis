@@ -1,5 +1,6 @@
 pandas
 statsmodels
+scikit-learn
 matplotlib
 pytest
 tzdata

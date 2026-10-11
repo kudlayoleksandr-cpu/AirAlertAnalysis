@@ -1,0 +1,77 @@
+{
+  "data_known_until_utc": "2026-05-31 15:00:00+00:00",
+  "validation_first_evening": "2026-03-02",
+  "validation_last_evening": "2026-05-30",
+  "baseline_c": {
+    "oblasts": "none",
+    "window_days": null
+  },
+  "model": {
+    "oblasts": "ring",
+    "window_days": null
+  },
+  "baseline_c_candidates": [
+    {
+      "oblasts": "none",
+      "window_days": 60.0,
+      "val_brier": 0.069265889
+    },
+    {
+      "oblasts": "none",
+      "window_days": 90.0,
+      "val_brier": 0.0689488468
+    },
+    {
+      "oblasts": "none",
+      "window_days": null,
+      "val_brier": 0.0687975607
+    }
+  ],
+  "model_candidates": [
+    {
+      "oblasts": "kyivska",
+      "window_days": 60.0,
+      "val_brier": 0.0662918645
+    },
+    {
+      "oblasts": "kyivska",
+      "window_days": 90.0,
+      "val_brier": 0.0660562547
+    },
+    {
+      "oblasts": "kyivska",
+      "window_days": null,
+      "val_brier": 0.0656244004
+    },
+    {
+      "oblasts": "ring",
+      "window_days": 60.0,
+      "val_brier": 0.066705707
+    },
+    {
+      "oblasts": "ring",
+      "window_days": 90.0,
+      "val_brier": 0.0661814112
+    },
+    {
+      "oblasts": "ring",
+      "window_days": null,
+      "val_brier": 0.0647338565
+    },
+    {
+      "oblasts": "all",
+      "window_days": 60.0,
+      "val_brier": 0.0710391809
+    },
+    {
+      "oblasts": "all",
+      "window_days": 90.0,
+      "val_brier": 0.0682036109
+    },
+    {
+      "oblasts": "all",
+      "window_days": null,
+      "val_brier": 0.0670504641
+    }
+  ]
+}
