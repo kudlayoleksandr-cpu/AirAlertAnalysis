@@ -2,7 +2,7 @@
 
 Every 15 minutes through the evening and night, estimate the probability that
 Kyiv City is under alert at some instant in the next L minutes. Definitions
-are in the README section "Forecast v2".
+are in DESIGN.md, section "Forecast v2".
 
 Leakage rule: everything is derived from ``known_at(alerts, cutoff)``, which
 drops alerts that start after the cutoff and hides the end time of alerts
@@ -32,7 +32,7 @@ VALIDATION_NIGHTS = 90
 FIRST_TEST_EVENING = "2026-05-31"
 LAST_TEST_EVENING = "2026-08-28"
 OPEN_HORIZON = pd.Timedelta(days=365)  # stand-in end for an alert still open at the cutoff
-FEATURE_LEVELS = ("oblast", "raion")  # hromada-level rows are ignored, see README
+FEATURE_LEVELS = ("oblast", "raion")  # hromada-level rows are ignored, see DESIGN.md
 
 KYIVSKA = ["Kyivska oblast"]
 RING = KYIVSKA + ["Chernihivska oblast", "Sumska oblast", "Poltavska oblast",
