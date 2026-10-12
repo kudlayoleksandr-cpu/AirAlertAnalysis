@@ -4,20 +4,28 @@ A small time series analysis of air raid alerts in Ukraine, with three
 forecasts for Kyiv City. The report is `notebooks/analysis.ipynb`; the
 detailed forecast definitions are in `DESIGN.md`.
 
-## What this project found
+Summary:
+## How I got here
 
-**Kyiv City's alert history says very little about tomorrow.** The daily
-series is close to noise around a slowly drifting level, and neither a
-forecast of tomorrow's alert-hours nor a forecast of whether each quarter of
-tomorrow will have an alert beats a simple rate. **The only usable information
-is what is happening around the city right now,** and it reaches about an hour
-ahead.
+version1 I first tried to forecast tomorrow's total alert hours
+in Kyiv from the city's own history, using exponential smoothing and SARIMA.
+Neither did better than always guessing the same number. The daily total
+turned out to be close to random from one day to the next.
 
-That is the result, not a failure to find one. Three differently framed
-forecasts, each tested once against baselines chosen to be hard to beat, agree
-with what the descriptive analysis shows: a lag-1 autocorrelation of 0.13, no
-weekly or yearly pattern, and alerts in neighbouring oblasts that mostly begin
-at the same moment as the city's.
+version2 So I stopped looking at whole days and asked
+something narrower and also looked up papers on this topic.I implemented feature:will an alert start in Kyiv in the next 15 minutes to
+3 hours, given what is happening in nearby regions right now? This was the
+only version that worked, and only a little: about 3 to 4% better than the
+baseline, and only up to an hour ahead.
+
+version3 I went back to the day-ahead question with
+a target that uses the time of day: the chance of an alert in each 6-hour
+block of tomorrow. It didn't help either, which backed up what v1 had shown.
+
+Takeaway: Kyiv's alert history tells you almost nothing about tomorrow.
+The only useful signal is what is happening around the city right now, and
+it lasts about an hour. 
+
 
 | Forecast | Target | Result on the final 90 days |
 |---|---|---|
