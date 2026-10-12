@@ -1,8 +1,13 @@
-pandas
-statsmodels
-scikit-learn
-matplotlib
-pytest
-tzdata
+# Versions the results were produced with (Python 3.13).
+pandas==3.0.6
+numpy==2.5.4
+scipy==1.18.1
+statsmodels==0.15.0
+scikit-learn==1.9.1
+matplotlib==3.11.2
+pytest==9.1.1
+tzdata==2026.5
 # only needed to open / re-execute notebooks/analysis.ipynb
-jupyter
+jupyter==1.1.1
+nbconvert==7.17.1
+ipykernel==7.4.0
